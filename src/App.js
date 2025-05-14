@@ -1,23 +1,44 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import Weather from './Weather';
 import './App.css';
 
 function App() {
+  const [city, setCity] = useState('');
+  const [weatherData, setWeatherData] = useState(null);
+
+  const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
+  console.log(apiKey);
+
+  const fetchWeather = async () => {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+    const data = await res.json();
+    if (data.cod === 200) {
+      setWeatherData(data);
+    } else {
+      alert("City not found");
+      setWeatherData(null);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetchWeather();
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>React Weather App</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={city}
+          placeholder="Enter city"
+          onChange={(e) => setCity(e.target.value)}
+        />
+        <button type="submit">Search</button>
+      </form>
+
+      {weatherData && <Weather data={weatherData} />}
     </div>
   );
 }
